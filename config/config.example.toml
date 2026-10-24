@@ -1,0 +1,71 @@
+# weather-provider example config. Copy it to config/config.toml, fill that
+# in, then start weather-provider (README, "Getting it running"):
+#
+#   1. [location]: set latitude and longitude and remove the # in front.
+#   2. [sign] server: only if sign-server isn't on this machine.
+#   3. [ims] api_key: optional, Israel only (or set IMS_API_KEY instead).
+#   4. [radar] direction: optional, where your rain usually comes from.
+#
+# Leave [setup] complete = false: the first start runs setup, which fills in
+# the time zone, IMS station and city, the radar layout and the coastline
+# (coast.json, next to this file), then sets it to true.
+#
+# Switches are true or false. Each command-line flag named below overrides
+# its setting for one run. config/config.toml is gitignored, so your location
+# and key stay out of the repo.
+
+# Set complete = false to run setup again on the next start (it also runs
+# while this is false on a new install). `python -m weather_provider setup`
+# runs it any time.
+[setup]
+complete = false  # true once setup has run (true/false)
+
+# Where to get the weather for. Fill in latitude and longitude before the
+# first start (remove the # in front); setup looks up the time zone itself.
+[location]
+# latitude =  # decimal degrees, north positive, e.g. 31.5 (required)
+# longitude =  # decimal degrees, east positive, e.g. 34.9 (required)
+timezone = "UTC"  # IANA name, e.g. "Asia/Jerusalem"; sets "today", the season and sunset. --timezone
+
+# Where sign-server is and where the panels go on the 128x32 sign.
+[sign]
+server = "http://localhost:5001/frame"  # sign-server's frame URL. --server
+x = 88  # top-left of the 40x32 weather panel. --x
+y = 0  # --y
+left_panel = true  # true: radar / summer panel on the left 88x32. false = --weather-only
+
+# Israel Meteorological Service: only in and around Israel. Each part is
+# optional; without it Open-Meteo is used instead. Setup fills in station
+# and location (the nearest ones) when you give it a key or are in Israel.
+[ims]
+api_key = ""  # for IMS station readings (free, ims.gov.il); the IMS_API_KEY environment variable wins
+# station =  # IMS station id for temperature and humidity
+# location =  # IMS forecast city id for the UV index and today's high
+
+# The IMS rain radar scope (Israel only: off by itself elsewhere). Outside
+# the season, or when disabled, the left panel shows heat stress and UV.
+# Setup works out home_x, home_y, km_per_px and rings_km from direction
+# and range_km; edit those four only to fine-tune.
+[radar]
+enabled = true  # true: radar in the rain season. false = --no-radar (summer panel all year)
+season = "10-01:05-30"  # dates the radar is shown, "MM-DD:MM-DD", inclusive. --radar-season
+direction = "NW"  # where your rain usually comes from: N NE E SE S SW W NW, or ALL (centered)
+range_km = 100  # radius of the outer ring
+home_x = 75  # home's pixel on the 88x32 panel
+home_y = 19
+km_per_px = 1.65
+rings_km = [33, 67, 100]
+coastline = "coast.json"  # OpenStreetMap coastline file, next to this one; `setup --coast-only` refreshes it
+
+# Minutes between fetches, how often to re-post, and when data is too old.
+[timing]
+fetch_minutes = 10  # how often to fetch the weather. --fetch-minutes
+radar_minutes = 5  # how often to fetch the radar (IMS makes a frame every 5). --radar-minutes
+post_seconds = 60  # how often to re-post the panels. --post-seconds
+stale_minutes = 45  # dashes after this long without a good reading. --stale-minutes
+ims_stale_minutes = 45  # Open-Meteo when the newest IMS reading is older. --ims-stale-minutes
+radar_stale_minutes = 30  # leave out rain older than this. --radar-stale-minutes
+
+[display]
+credits = true  # true: show the IMS / OM source labels (the data terms require them). false = --no-label
+verbose = false  # true: debug logging. true = -v / --verbose

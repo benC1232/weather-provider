@@ -1,0 +1,22 @@
+# weather-provider in Docker. Before the first start, copy
+# config/config.example.toml to config/config.toml and fill it in (at least latitude and longitude; README, "Getting it
+# running"); setup then runs by itself on the first start.
+#
+#   docker compose up -d                                  # start; restarts at boot
+#   docker compose logs -f                                # watch it
+#   docker compose run --rm weather-provider setup        # set up again, interactively
+services:
+  weather-provider:
+    build: .
+    image: weather-provider
+    restart: unless-stopped  # comes back after a crash or reboot
+    # Host networking, so the default sign.server (http://localhost:5001/frame)
+    # reaches a sign-server running on this machine.
+    network_mode: host
+    volumes:
+      - ./config:/config
+    # Run as you, so config/ stays yours. Change if your uid isn't 1000 (`id -u`).
+    user: "1000:1000"
+    environment:
+      - TZ=${TZ:-UTC}  # log timestamps only; the panels use location.timezone
+      # - IMS_API_KEY=...  # instead of ims.api_key in the config

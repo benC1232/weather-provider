@@ -1,0 +1,15 @@
+[Unit]
+Description=Weather panel for the sign
+After=network-online.target sign-server.service
+Wants=network-online.target
+
+[Service]
+# Settings: ~/.config/weather-provider/config.toml of User=. With no terminal,
+# setup takes its answers from that file: fill it in first (README, "Before setup").
+User=pi
+WorkingDirectory=/home/pi/weather-provider
+ExecStart=/home/pi/weather-provider/.venv/bin/python -m weather_provider
+Restart=always
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,12 @@
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+*.egg-info/
+build/
+dist/
+# Your config holds your location and API key: only config/config.example.toml
+# is tracked. The coastline is made by setup.
+config/config.toml
+config/coast.json
+*.env
